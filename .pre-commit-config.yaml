@@ -8,7 +8,7 @@ repos:
       - id: check-yaml
       - id: check-json
       - id: check-added-large-files
-  - repo : https://github.com/astral-sh/ruff-pre-commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.0
     hooks:
       - id: ruff
@@ -18,4 +18,4 @@ repos:
     rev: 0.7.17
     hooks:
       - id: uv-lock
-exclude: ^(.svn|CVS|.bzr|.hg|.git|__pycache__|.tox|.ipynb_checkpoints|assets|tests/assets/|venv/|.venv/)
+exclude: ^(.svn|CVS|.bzr|.hg|\.git/|__pycache__|.tox|.ipynb_checkpoints|assets|tests/assets/|venv/|.venv/)

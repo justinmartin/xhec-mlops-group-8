@@ -4,7 +4,9 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)]()
 [![Linting: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-informational?logo=pre-commit&logoColor=white)](https://github.com/artefactory/xhec-mlops-project-student/blob/main/.pre-commit-config.yaml)
+[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-informational?logo=pre-commit&logoColor=white)](https://github.com/justinmartin/xhec-mlops-group-8/blob/main/.pre-commit-config.yaml)
+[![MLflow](https://img.shields.io/badge/tracking-MLflow-0194E2?logo=mlflow&logoColor=white)](https://mlflow.org)
+[![Prefect](https://img.shields.io/badge/orchestration-Prefect-070E10?logo=prefect&logoColor=white)](https://www.prefect.io)
 </div>
 
 ## Team
@@ -22,7 +24,7 @@ Determining the age of an abalone (a sea snail) normally means cutting its shell
 
 It covers the full MLOps loop:
 - **Training pipeline**: a Prefect flow that loads the data, preprocesses it, trains a linear regression and saves the model and encoder.
-- **Periodic retraining**: a Prefect deployment that reruns the flow every Sunday at midnight.
+- **Periodic retraining**: a Prefect deployment that reruns the flow every Friday at 6pm.
 - **Prediction API**: a FastAPI service with Pydantic input validation, which picks up a retrained model without restarting.
 - **Docker**: one container runs the API, the Prefect server and the retraining deployment.
 
@@ -70,7 +72,7 @@ The training code in `src/modelling` is a Prefect **flow** (`main.py`) made of *
    ```
    The model and the encoder are saved in `src/web_service/local_objects/`.
 
-3. **Deploy the flow for regular retraining** (every Sunday at midnight, keep it running):
+3. **Deploy the flow for regular retraining** (every Friday at 6pm, keep it running):
    ```bash
    cd src/modelling
    uv run python deployment.py
@@ -96,7 +98,7 @@ On Windows PowerShell, use `-v "${PWD}/data:/app/data"`. Stop any local Prefect 
 The container starts:
 - the **API** on http://localhost:8000 (interactive docs at http://localhost:8000/docs),
 - the **Prefect UI** on http://localhost:4200,
-- the **retraining deployment**, which retrains on the mounted `data/abalone.csv` every Sunday. The API serves the new model as soon as it is saved. Trigger a run from the UI to try it.
+- the **retraining deployment**, which retrains on the mounted `data/abalone.csv` every Friday, at 6pm. The API serves the new model as soon as it is saved. Trigger a run from the UI to try it.
 
 The image ships with the model committed in `local_objects/`, so the API works even without the data. Only retraining needs it.
 
@@ -121,6 +123,16 @@ curl -X POST http://localhost:8000/predict \
 ```
 
 Measurements use the dataset's units. `sex` must be `M`, `F` or `I` (infant), and every measurement must be positive. Invalid inputs return a `422` that explains what is wrong.
+
+## Notebooks
+
+The EDA and modelling experiments are in `notebooks/` (open them with the project's `.venv` kernel). Experiments are tracked with MLflow; to browse them:
+
+```bash
+cd notebooks
+uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+Then open http://localhost:5000.
 
 ## Development
 
