@@ -85,3 +85,11 @@ secrets/*
 
 # Mac files
 .DS_Store
+
+# Dataset (downloaded locally, not versioned)
+data/
+
+# MLflow tracking data (not versioned)
+mlruns/
+mlartifacts/
+mlflow.db
