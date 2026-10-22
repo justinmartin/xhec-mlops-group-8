@@ -1,0 +1,45 @@
+# This module is the training flow: it reads the data, preprocesses it, trains a model and saves it.
+
+import argparse
+from pathlib import Path
+
+from predicting import predict
+from preprocessing import extract_x_y, filter_outliers, load_data
+from sklearn.model_selection import train_test_split
+from training import evaluate_model, train_model
+from utils import pickle_object
+
+# src/modelling/main.py -> src/web_service/local_objects
+LOCAL_OBJECTS_DIR = (
+    Path(__file__).resolve().parents[1] / "web_service" / "local_objects"
+)
+
+
+def main(trainset_path: Path) -> None:
+    """Train a model using the data at the given path and save the model (pickle)."""
+    # Read data
+    df = filter_outliers(load_data(trainset_path))
+    df_train, df_test = train_test_split(df, test_size=0.2, random_state=42)
+
+    # Preprocess data (the encoder is fitted on the training set only)
+    x_train, y_train, dv = extract_x_y(df_train)
+    x_test, y_test, _ = extract_x_y(df_test, dv=dv)
+
+    # Train model
+    model = train_model(x_train, y_train)
+    rmse = evaluate_model(y_test, predict(x_test, model))
+    print(f"Test RMSE: {rmse:.2f} rings")
+
+    # Pickle encoder and model for the web service
+    pickle_object(dv, LOCAL_OBJECTS_DIR / "dv.pkl")
+    pickle_object(model, LOCAL_OBJECTS_DIR / "model.pkl")
+    print(f"Model and encoder saved to {LOCAL_OBJECTS_DIR}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Train a model using the data at the given path."
+    )
+    parser.add_argument("trainset_path", type=str, help="Path to the training set")
+    args = parser.parse_args()
+    main(args.trainset_path)
