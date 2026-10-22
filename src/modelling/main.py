@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from predicting import predict
+from prefect import flow
 from preprocessing import extract_x_y, filter_outliers, load_data
 from sklearn.model_selection import train_test_split
 from training import evaluate_model, train_model
@@ -15,6 +16,7 @@ LOCAL_OBJECTS_DIR = (
 )
 
 
+@flow(name="Train model")
 def main(trainset_path: Path) -> None:
     """Train a model using the data at the given path and save the model (pickle)."""
     # Read data

@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+from prefect import task
 from scipy.sparse import csr_matrix
 from sklearn.feature_extraction import DictVectorizer
 
@@ -18,11 +19,13 @@ NUMERICAL_COLS = [
 ]
 
 
+@task
 def load_data(path: str) -> pd.DataFrame:
     """Read the abalone dataset from a CSV file."""
     return pd.read_csv(path)
 
 
+@task
 def filter_outliers(
     df: pd.DataFrame, min_height: float = 0, max_height: float = 0.4
 ) -> pd.DataFrame:
@@ -30,6 +33,7 @@ def filter_outliers(
     return df[(df["Height"] > min_height) & (df["Height"] <= max_height)]
 
 
+@task
 def extract_x_y(
     df: pd.DataFrame, dv: DictVectorizer | None = None, with_target: bool = True
 ) -> tuple[csr_matrix, np.ndarray | None, DictVectorizer]:
