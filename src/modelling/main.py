@@ -1,4 +1,4 @@
-# This module is the training flow: it reads the data, preprocesses it, trains a model and saves it.
+"""Training flow: read the data, preprocess it, train a model and save it."""
 
 import argparse
 from pathlib import Path
@@ -16,8 +16,8 @@ LOCAL_OBJECTS_DIR = (
 )
 
 
-@flow(name="Train model")
-def main(trainset_path: Path) -> None:
+@flow(name="Train model", log_prints=True)
+def main(trainset_path: str) -> None:
     """Train a model using the data at the given path and save the model (pickle)."""
     # Read data
     df = filter_outliers(load_data(trainset_path))

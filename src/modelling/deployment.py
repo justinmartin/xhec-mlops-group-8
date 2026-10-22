@@ -10,6 +10,6 @@ TRAINSET_PATH = Path(__file__).resolve().parents[2] / "data" / "abalone.csv"
 if __name__ == "__main__":
     main.serve(
         name="abalone-retraining",
-        cron="0 0 * * 0",
+        cron="0 18 * * 5",
         parameters={"trainset_path": str(TRAINSET_PATH)},
     )
