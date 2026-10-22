@@ -24,7 +24,7 @@ Determining the age of an abalone (a sea snail) normally means cutting its shell
 
 It covers the full MLOps loop:
 - **Training pipeline**: a Prefect flow that loads the data, preprocesses it, trains a linear regression and saves the model and encoder.
-- **Periodic retraining**: a Prefect deployment that reruns the flow every Friday at 6pm.
+- **Periodic retraining**: a Prefect deployment that reruns the flow every Friday at 6pm UTC.
 - **Prediction API**: a FastAPI service with Pydantic input validation, which picks up a retrained model without restarting.
 - **Docker**: one container runs the API, the Prefect server and the retraining deployment.
 
@@ -35,6 +35,7 @@ It covers the full MLOps loop:
 ```
 ├── bin/run_services.sh       # Container entrypoint: Prefect server + retraining deployment + API
 ├── Dockerfile.app            # Image for the API and the Prefect services
+├── Makefile                  # Shortcuts for install, Docker, training, API and lint
 ├── notebooks/                # EDA and modelling experiments (tracked with MLflow)
 └── src/
     ├── modelling/            # Prefect training flow (main.py) and retraining deployment (deployment.py)
@@ -51,9 +52,21 @@ It covers the full MLOps loop:
 Prerequisites: Python 3.11+, [uv](https://docs.astral.sh/uv/getting-started/installation/) and, to run the container, [Docker](https://docs.docker.com/get-docker/).
 
 ```bash
-uv sync
-uv run pre-commit install
+make install   # uv sync + pre-commit hooks
+make docker    # API on http://localhost:8000/docs, Prefect UI on http://localhost:4200
 ```
+
+That's all you need to try the project. The other targets, each detailed below:
+
+| Command | What it does |
+|---|---|
+| `make prefect` | Start a local Prefect server and UI on :4200 |
+| `make train` | Train the model once on `data/abalone.csv` |
+| `make deploy` | Serve the weekly retraining deployment |
+| `make api` | Run the API locally on :8000 |
+| `make lint` | Run the same checks as the CI |
+
+No `make` (e.g. on Windows)? Every target is a one-liner from the `Makefile` that you can copy, or use the commands in the sections below.
 
 ## Training Pipeline with Prefect
 
@@ -72,7 +85,7 @@ The training code in `src/modelling` is a Prefect **flow** (`main.py`) made of *
    ```
    The model and the encoder are saved in `src/web_service/local_objects/`.
 
-3. **Deploy the flow for regular retraining** (every Friday at 6pm, keep it running):
+3. **Deploy the flow for regular retraining** (every Friday at 6pm UTC, keep it running):
    ```bash
    cd src/modelling
    uv run python deployment.py
@@ -98,7 +111,7 @@ On Windows PowerShell, use `-v "${PWD}/data:/app/data"`. Stop any local Prefect 
 The container starts:
 - the **API** on http://localhost:8000 (interactive docs at http://localhost:8000/docs),
 - the **Prefect UI** on http://localhost:4200,
-- the **retraining deployment**, which retrains on the mounted `data/abalone.csv` every Friday, at 6pm. The API serves the new model as soon as it is saved. Trigger a run from the UI to try it.
+- the **retraining deployment**, which retrains on the mounted `data/abalone.csv` every Friday at 6pm UTC. The API serves the new model as soon as it is saved. Trigger a run from the UI to try it.
 
 The image ships with the model committed in `local_objects/`, so the API works even without the data. Only retraining needs it.
 

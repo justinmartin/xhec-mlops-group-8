@@ -5,8 +5,7 @@ from pathlib import Path
 
 from predicting import predict
 from prefect import flow
-from preprocessing import extract_x_y, filter_outliers, load_data
-from sklearn.model_selection import train_test_split
+from preprocessing import extract_x_y, filter_outliers, load_data, split_data
 from training import evaluate_model, train_model
 from utils import pickle_object
 
@@ -21,7 +20,7 @@ def main(trainset_path: str) -> None:
     """Train a model using the data at the given path and save the model (pickle)."""
     # Read data
     df = filter_outliers(load_data(trainset_path))
-    df_train, df_test = train_test_split(df, test_size=0.2, random_state=42)
+    df_train, df_test = split_data(df)
 
     # Preprocess data (the encoder is fitted on the training set only)
     x_train, y_train, dv = extract_x_y(df_train)

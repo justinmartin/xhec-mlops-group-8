@@ -5,6 +5,7 @@ import pandas as pd
 from prefect import task
 from scipy.sparse import csr_matrix
 from sklearn.feature_extraction import DictVectorizer
+from sklearn.model_selection import train_test_split
 
 TARGET_COL = "Rings"
 CATEGORICAL_COLS = ["Sex"]
@@ -31,6 +32,15 @@ def filter_outliers(
 ) -> pd.DataFrame:
     """Remove the Height outliers found in the EDA (Height = 0 and Height > 0.4)."""
     return df[(df["Height"] > min_height) & (df["Height"] <= max_height)]
+
+
+@task
+def split_data(
+    df: pd.DataFrame, test_size: float = 0.2
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Split the data into a train set and a test set (reproducible split)."""
+    df_train, df_test = train_test_split(df, test_size=test_size, random_state=42)
+    return df_train, df_test
 
 
 @task
