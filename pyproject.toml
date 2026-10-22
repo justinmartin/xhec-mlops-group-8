@@ -14,10 +14,12 @@ authors = [
 description = "X-HEC MLOps Project on Abalone age prediction model"
 requires-python = ">=3.11"
 dependencies = [
+    "fastapi>=0.150.0",
     "pandas>=2.2,<3",
     "prefect>=3.9.0",
     "pydantic>=2.0",
     "scikit-learn>=1.9.1",
+    "uvicorn>=0.54.0",
 ]
 
 [dependency-groups]
@@ -33,3 +35,5 @@ dev = [
 
 [tool.uv]
 package = false
+# Prefect 3.9's scheduler breaks with SQLAlchemy 2.1 (hybrid properties in bulk inserts)
+constraint-dependencies = ["sqlalchemy<2.1"]
